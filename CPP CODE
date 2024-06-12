@@ -1,0 +1,76 @@
+/*Proyek Akhir Mata Kuliah Algoritma dan Struktur Data
+    Find Articulation Point at Undirected Graph
+    
+Aurellia Zalfa Sulistiyanto, NIM : 22/506032/TK/55420
+Lafendra Amalia, NIM : 22/502940/TK/54925 */
+
+
+#include <iostream>
+#include <vector>
+#include <algorithm>
+using namespace std;
+
+void DFS(int u, vector<int> adj[], vector<bool>& visited, vector<int>& discovery, vector<int>& low, vector<int>& parent, vector<bool>& articulation_point, int& time) {
+    int children = 0;
+    visited[u] = true;
+    discovery[u] = low[u] = ++time;
+
+    for (int v : adj[u]) {
+        if (!visited[v]) {
+            children++;
+            parent[v] = u;
+            DFS(v, adj, visited, discovery, low, parent, articulation_point, time);
+
+            low[u] = min(low[u], low[v]);
+
+            if (parent[u] == -1 && children > 1)
+                articulation_point[u] = true;
+            if (parent[u] != -1 && low[v] >= discovery[u])
+                articulation_point[u] = true;
+        } else if (v != parent[u]) {
+            low[u] = min(low[u], discovery[v]);
+        }
+    }
+}
+
+void findArticulationPoints(vector<int> adj[], int V) {
+    vector<bool> visited(V, false);
+    vector<int> discovery(V, -1);
+    vector<int> low(V, -1);
+    vector<int> parent(V, -1);
+    vector<bool> articulation_point(V, false);
+    int time = 0;
+
+    for (int i = 0; i < V; i++) {
+        if (!visited[i]) {
+            DFS(i, adj, visited, discovery, low, parent, articulation_point, time);
+        }
+    }
+
+    for (int i = 0; i < V; i++) {
+        if (articulation_point[i]) {
+            cout << "Articulation Point: " << i << endl;
+        }
+    }
+}
+
+int main() {
+    int V, E;
+    cout << "Enter the number of vertices: ";
+    cin >> V;
+    cout << "Enter the number of edges: ";
+    cin >> E;
+
+    vector<int> adj[V];
+    cout << "Enter the edges (u v):" << endl;
+    for (int i = 0; i < E; i++) {
+        int u, v;
+        cin >> u >> v;
+        adj[u].push_back(v);
+        adj[v].push_back(u);
+    }
+
+    findArticulationPoints(adj, V);
+
+    return 0;
+}
